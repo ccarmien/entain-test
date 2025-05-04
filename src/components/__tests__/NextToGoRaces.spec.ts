@@ -1,18 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import PrimeVue from 'primevue/config'
 import { shallowMount } from '@vue/test-utils'
 import NextToGoRaces from '../NextToGoRaces.vue'
 import Select from 'primevue/select'
 import { useCategoryStore } from '../../stores/useCategoryStore'
 import categories from '../consts/categories'
-
-// Mock the category store
-vi.mock('../../stores/useCategoryStore', () => ({
-  useCategoryStore: vi.fn(() => ({
-    selectedCategory: null,
-    setSelectedCategory: vi.fn(),
-  })),
-}))
+import { setActivePinia, createPinia } from 'pinia'
 
 vi.mock('primevue/select', () => ({
   default: {
@@ -22,6 +15,10 @@ vi.mock('primevue/select', () => ({
 }))
 
 describe('NextToGoRaces', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
   it('renders properly', () => {
     const wrapper = shallowMount(NextToGoRaces, {
       global: {
@@ -60,5 +57,23 @@ describe('NextToGoRaces', () => {
     const select = wrapper.findComponent(Select)
     expect(select.props('modelValue')).toBe(mockStore.selectedCategory)
     expect(mockStore.selectedCategory).toBe(null) // Default value
+  })
+
+  it.each(categories)('stores the selected category in the store: %s', async (category) => {
+    const mockStore = useCategoryStore()
+    const wrapper = shallowMount(NextToGoRaces, {
+      global: {
+        plugins: [PrimeVue],
+      },
+    })
+
+    const select = wrapper.findComponent(Select)
+    expect(select.exists()).toBe(true)
+
+    // Simulate selecting a category
+    await select.vm.$emit('update:modelValue', category)
+
+    // Check if the store's selectedCategory was updated
+    expect(mockStore.selectedCategory).toEqual(category)
   })
 })
