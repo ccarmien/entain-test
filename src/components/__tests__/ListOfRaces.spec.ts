@@ -5,14 +5,14 @@ import { shallowMount } from '@vue/test-utils'
 import NextToGoRaces from '../NextToGoRaces.vue'
 import ListOfRaces from '../ListOfRaces.vue'
 import { useCategoryStore } from '../../stores/useCategoryStore'
-import racingApiResponse from './racing_api_response.json'
 import categories from '../consts/categories'
 import { setActivePinia, createPinia } from 'pinia'
+import { generateRacingApiResponse } from './RacingApiResponse'
 
 global.fetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
-    json: () => Promise.resolve(racingApiResponse),
+    json: () => Promise.resolve(generateRacingApiResponse()),
   }),
 )
 
